@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ticker: MyString
+  buy_price: 1.5
+  quantity: 1.5
+  sell_price: 1.5
+  status: 1
+  buyed_at: 2026-02-14 15:40:26
+  selled_at: 2026-02-14 15:40:26
+
+two:
+  ticker: MyString
+  buy_price: 1.5
+  quantity: 1.5
+  sell_price: 1.5
+  status: 1
+  buyed_at: 2026-02-14 15:40:26
+  selled_at: 2026-02-14 15:40:26

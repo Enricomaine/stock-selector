@@ -1,0 +1,78 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Transactions" %>
+
+
+<h1>Transações em aberto</h1>
+<% if @open_transactions.any? %>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Buy Price</th>
+        <th>Quantity</th>
+        <th>Buyed At</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @open_transactions.each do |transaction| %>
+        <tr>
+          <td><%= transaction.ticker %></td>
+          <td><%= transaction.buy_price %></td>
+          <td><%= transaction.quantity %></td>
+          <td><%= l(transaction.buyed_at, format: :short) if transaction.buyed_at %></td>
+          <td>
+            <%= link_to "Show", transaction %> |
+            <%= link_to "Edit", edit_transaction_path(transaction) %> |
+            <%= link_to "Destroy", transaction, method: :delete, data: { confirm: "Are you sure?" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nenhuma transação em aberto.</p>
+<% end %>
+
+<h1>Transações concluídas</h1>
+<% if @closed_transactions.any? %>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Buy Price</th>
+        <th>Quantity</th>
+        <th>Buyed At</th>
+        <th>Sell Price</th>
+        <th>Selled At</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @closed_transactions.each do |transaction| %>
+        <tr>
+          <td><%= transaction.ticker %></td>
+          <td><%= transaction.buy_price %></td>
+          <td><%= transaction.quantity %></td>
+          <td><%= l(transaction.buyed_at, format: :short) if transaction.buyed_at %></td>
+          <td><%= transaction.sell_price %></td>
+          <td><%= l(transaction.selled_at, format: :short) if transaction.selled_at %></td>
+          <td>
+            <%= link_to "Show", transaction %> |
+            <%= link_to "Destroy", transaction, method: :delete, data: { confirm: "Are you sure?" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <div style="margin-top: 20px;">
+    <%= paginate @closed_transactions %>
+  </div>
+<% else %>
+  <p>Nenhuma transação concluída.</p>
+<% end %>
+
+<div style="margin-top: 30px;">
+  <%= link_to "Nova transação", new_transaction_path %>
+</div>

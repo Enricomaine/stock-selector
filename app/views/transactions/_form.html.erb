@@ -1,0 +1,40 @@
+<%= form_with(model: transaction) do |form| %>
+  <% if transaction.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
+
+      <ul>
+        <% transaction.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <% if transaction.persisted? %>
+    <div>
+      <%= form.label :sell_price, style: "display: block" %>
+      <%= form.text_field :sell_price %>
+    </div>
+  <% else %>
+    <div>
+      <%= form.label :ticker, style: "display: block" %>
+      <%= form.text_field :ticker %>
+    </div>
+
+    <div>
+      <%= form.label :buy_price, style: "display: block" %>
+      <%= form.text_field :buy_price %>
+    </div>
+
+    <div>
+      <%= form.label :quantity, style: "display: block" %>
+      <%= form.text_field :quantity %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

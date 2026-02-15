@@ -1,0 +1,93 @@
+<h1>Ações</h1>
+<% if @stocks.present? %>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @stocks.each do |s| %>
+        <tr>
+          <td><%= s %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nenhuma ação encontrada.</p>
+<% end %>
+
+<h1>Transações para realizar</h1>
+<% if @transactions.present? %>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Buy price</th>
+        <th>Quantity</th>
+        <th>Buyed at</th>
+        <th>Current price</th>
+        <th>Lucro (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @transactions.each do |t| %>
+        <tr>
+          <% buy_price = t["buy_price"].to_f %>
+          <% current_price = t["current_price"].to_f %>
+          <% profit_pct = buy_price.positive? ? ((current_price - buy_price) / buy_price * 100.0) : 0 %>
+
+          <td><%= t["ticker"] %></td>
+          <td><%= buy_price %></td>
+          <td><%= t["quantity"] %></td>
+          <td>
+            <% buyed_at = t["buyed_at"] %>
+            <%= buyed_at.respond_to?(:strftime) ? buyed_at.strftime("%d/%m/%Y %H:%M") : buyed_at %>
+          </td>
+          <td><%= current_price %></td>
+          <td><%= sprintf("%.2f%%", profit_pct) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nenhuma transação encontrada.</p>
+<% end %>
+
+<h1>Transações em aberto</h1>
+<% if @open_transactions.present? %>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Buy price</th>
+        <th>Quantity</th>
+        <th>Buyed at</th>
+        <th>Current price</th>
+        <th>Lucro (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @open_transactions.each do |t| %>
+        <tr>
+          <% buy_price = t["buy_price"].to_f %>
+          <% current_price = t["current_price"].to_f %>
+          <% profit_pct = buy_price.positive? ? ((current_price - buy_price) / buy_price * 100.0) : 0 %>
+
+          <td><%= t["ticker"] %></td>
+          <td><%= buy_price %></td>
+          <td><%= t["quantity"] %></td>
+          <td>
+            <% buyed_at = t["buyed_at"] %>
+            <%= buyed_at.respond_to?(:strftime) ? buyed_at.strftime("%d/%m/%Y %H:%M") : buyed_at %>
+          </td>
+          <td><%= current_price %></td>
+          <td><%= sprintf("%.2f%%", profit_pct) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nenhuma transação encontrada.</p>
+<% end %>
