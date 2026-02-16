@@ -16,6 +16,6 @@ production:
   <<: *default
   database: stock_selector
 
-  cable:
+cable:
   <<: *default
   url: <%= ENV["DATABASE_URL"] %>
