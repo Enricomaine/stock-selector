@@ -1,20 +1,23 @@
 default: &default
   adapter: postgresql
-  enconding: unicode
+  encoding: unicode
   pool: 5
   url: <%= ENV['DATABASE_URL'] %>
 
 development:
-  <<: *default
-  database: stock_selector_development
+  primary:
+    <<: *default
+    database: stock_selector_development
 
 test:
-  <<: *default
-  database: stock_selector_test
+  primary:
+    <<: *default
+    database: stock_selector_test
 
 production:
-  <<: *default
-  database: stock_selector
+  primary:
+    <<: *default
+    database: stock_selector
 
   cable:
     <<: *default
