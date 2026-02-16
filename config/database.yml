@@ -18,4 +18,4 @@ production:
 
   cable:
     <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    database: stock_selector_cache
