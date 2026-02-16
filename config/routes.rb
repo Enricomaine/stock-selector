@@ -1,6 +1,6 @@
+Rails.application.routes.draw do
   # Endpoint seguro para disparar o job via scheduler externo (ex: Railway cron)
   post "/run_stock_selector_job/:token", to: "jobs#run_stock_selector_job"
-Rails.application.routes.draw do
   resources :transactions
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
