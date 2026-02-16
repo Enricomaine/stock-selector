@@ -42,12 +42,12 @@ Rails.application.configure do
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: 'smtp.gmail.com',
-    port: 587,
-    user_name: 'enricomaine@gmail.com',
-    password: 'afqk sfjy gygj bizg',
-    authentication: 'plain',
-    enable_starttls_auto: true
+    address: ENV.fetch('SMTP_ADDRESS', 'smtp.gmail.com'),
+    port: ENV.fetch('SMTP_PORT', 587),
+    user_name: ENV['SMTP_USERNAME'],
+    password: ENV['SMTP_PASSWORD'],
+    authentication: ENV.fetch('SMTP_AUTH', 'plain'),
+    enable_starttls_auto: ENV.fetch('SMTP_STARTTLS', 'true') == 'true'
   }
 
   # Print deprecation notices to the Rails logger.
