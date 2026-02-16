@@ -12,8 +12,12 @@ development:
   queue:
     <<: *default
     database: stock_selector_development
-  
+
   cable:
+    <<: *default
+    database: stock_selector_development
+  
+  cache:
     <<: *default
     database: stock_selector_development
 
@@ -25,8 +29,12 @@ test:
   queue:
     <<: *default
     database: stock_selector_test
-  
+
   cable:
+    <<: *default
+    database: stock_selector_test
+
+  cache:
     <<: *default
     database: stock_selector_test
 
@@ -37,8 +45,12 @@ production:
 
   cable:
     <<: *default
-    database: stock_selector_cache
+    database: stock_selector
 
   queue:
+    <<: *default
+    database: stock_selector
+
+  cache:
     <<: *default
     database: stock_selector
