@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   # Endpoint seguro para disparar o job via scheduler externo (ex: Railway cron)
   post "/run_stock_selector_job/:token", to: "jobs#run_stock_selector_job"
-  resources :transactions
+  resources :transactions do
+    post :send_email, on: :collection
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -10,7 +10,7 @@ set :environment, ENV['RAILS_ENV'] || 'development'
   hour = rand(8..14)
   minute = rand(0..59)
   cron_time = "%02d %02d * * 1-5" % [minute, hour]
-  cron cron_time do
+  every cron_time do
     runner "StockSelectorJob.perform_later"
   end
 end

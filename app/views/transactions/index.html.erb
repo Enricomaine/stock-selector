@@ -3,6 +3,10 @@
 <% content_for :title, "Transactions" %>
 
 
+<div style="margin-bottom: 20px;">
+  <%= button_to "Enviar email", send_email_transactions_path, method: :post, data: { confirm: "Deseja enviar os emails agora?" } %>
+</div>
+
 <h1>Transações em aberto</h1>
 <% if @open_transactions.any? %>
   <table border="1" cellpadding="5" cellspacing="0">

@@ -7,6 +7,11 @@ class TransactionsController < ApplicationController
     @closed_transactions = Transaction.where(status: 2).order(selled_at: :desc).page(params[:page]).per(10)
   end
 
+  def send_email
+    StockSelectorJob.perform_now
+    redirect_to transactions_path, notice: "Emails enviados com sucesso."
+  end
+
   # GET /transactions/1 or /transactions/1.json
   def show
   end
