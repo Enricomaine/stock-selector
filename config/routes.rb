@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   post "/run_stock_selector_job/:token", to: "jobs#run_stock_selector_job"
   resources :transactions do
     post :send_email, on: :collection
+    get :preview_email, on: :collection
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

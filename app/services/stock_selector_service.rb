@@ -1,11 +1,27 @@
 class StockSelectorService
   def call
+    data = notification_data
+
+    begin
+      Rails.logger.info("[StockSelectorService] Enviando e-mail de notificação. Tickers selecionados: #{data.stock_tickers.size}, transações para realizar: #{data.transactions_not_found.size}, abertas: #{data.open_transactions.size}")
+      NotificationMailer.notification(data.stock_tickers, data.transactions_not_found, data.open_transactions).deliver_now
+      Rails.logger.info("[StockSelectorService] E-mail de notificação enviado com sucesso")
+    rescue StandardError => e
+      Rails.logger.error("[StockSelectorService] Falha ao enviar e-mail de notificação: #{e.class} - #{e.message}")
+    end
+
+    data.transactions_not_found
+  end
+
+  NotificationData = Struct.new(:stock_tickers, :transactions_not_found, :open_transactions, keyword_init: true)
+
+  def notification_data
     Rails.logger.info("[StockSelectorService] Iniciando seleção de ações")
 
     stocks = ApiConsultant.new.call
     unless stocks
       Rails.logger.error("[StockSelectorService] Nenhum dado retornado da API. E-mail NÃO será enviado.")
-      return []
+      return NotificationData.new(stock_tickers: [], transactions_not_found: [], open_transactions: [])
     end
 
     first_30 = stocks.select do |stock|
@@ -31,14 +47,10 @@ class StockSelectorService
       t.attributes.merge("current_price" => prices_by_ticker[t.ticker])
     end
 
-    begin
-      Rails.logger.info("[StockSelectorService] Enviando e-mail de notificação. Tickers selecionados: #{stock_tickers.size}, transações para realizar: #{enriched_transactions_not_found.size}, abertas: #{enriched_open_transactions.size}")
-      NotificationMailer.notification(stock_tickers, enriched_transactions_not_found, enriched_open_transactions).deliver_now
-      Rails.logger.info("[StockSelectorService] E-mail de notificação enviado com sucesso")
-    rescue StandardError => e
-      Rails.logger.error("[StockSelectorService] Falha ao enviar e-mail de notificação: #{e.class} - #{e.message}")
-    end
-
-    enriched_transactions_not_found
+    NotificationData.new(
+      stock_tickers: stock_tickers,
+      transactions_not_found: enriched_transactions_not_found,
+      open_transactions: enriched_open_transactions
+    )
   end
 end

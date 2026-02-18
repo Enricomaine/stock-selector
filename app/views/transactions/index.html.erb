@@ -4,7 +4,8 @@
 
 
 <div style="margin-bottom: 20px;">
-  <%= button_to "Enviar email", send_email_transactions_path, method: :post, data: { confirm: "Deseja enviar os emails agora?" } %>
+  <%= button_to "Enviar email", preview_email_transactions_path, method: :get %>
+  <!-- caso prefira manter confirmação, pode usar data: { confirm: "Deseja visualizar o email agora?" } -->
 </div>
 
 <h1>Transações em aberto</h1>

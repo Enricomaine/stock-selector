@@ -12,6 +12,20 @@ class TransactionsController < ApplicationController
     redirect_to transactions_path, notice: "Emails enviados com sucesso."
   end
 
+  def preview_email
+    data = StockSelectorService.new.notification_data
+
+    if data.stock_tickers.empty? && data.transactions_not_found.empty? && data.open_transactions.empty?
+      redirect_to transactions_path, alert: "Não foi possível gerar o conteúdo do e-mail." and return
+    end
+
+    @stocks = data.stock_tickers
+    @transactions = data.transactions_not_found
+    @open_transactions = data.open_transactions
+
+    render template: "notification_mailer/notification", layout: "mailer"
+  end
+
   # GET /transactions/1 or /transactions/1.json
   def show
   end
