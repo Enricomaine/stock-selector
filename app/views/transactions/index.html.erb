@@ -4,9 +4,17 @@
 
 
 <div style="margin-bottom: 20px;">
-  <%= button_to "Enviar email", preview_email_transactions_path, method: :get %>
+  <%= button_to "Realizar consulta", preview_email_transactions_path, method: :get %>
   <!-- caso prefira manter confirmação, pode usar data: { confirm: "Deseja visualizar o email agora?" } -->
 </div>
+
+<% target_value = 20_000.0 %>
+<% remaining_value = target_value - (@monthly_sold_total || 0) %>
+<p>
+  Limite mensal: <%= number_to_currency(target_value) %> |
+  Total vendido no mês: <%= number_to_currency(@monthly_sold_total || 0) %> |
+  Restante: <%= number_to_currency(remaining_value) %>
+</p>
 
 <h1>Transações em aberto</h1>
 <% if @open_transactions.any? %>

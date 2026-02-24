@@ -17,6 +17,16 @@
       <%= form.label :sell_price, style: "display: block" %>
       <%= form.number_field :sell_price, step: :any, required: true %>
     </div>
+
+    <div id="saldo-pos-venda"
+         data-limit="<%= @target_value || 20_000.0 %>"
+         data-monthly-sold="<%= (@monthly_sold_total || 0).to_f %>"
+         data-quantity="<%= transaction.quantity.to_f %>"
+         style="margin-top: 10px;">
+      Saldo após venda:
+      <span id="saldoPosVendaValor"></span>
+      <span id="saldoPosVendaAlerta" style="display:none; color:red; font-weight:bold;">⚠</span>
+    </div>
   <% else %>
     <div>
       <%= form.label :ticker, style: "display: block" %>
@@ -38,3 +48,48 @@
     <%= form.submit %>
   </div>
 <% end %>
+
+<script>
+  (function() {
+    function initSaldoPosVenda() {
+      var container = document.getElementById("saldo-pos-venda");
+      if (!container) return;
+
+      var limit = parseFloat(container.dataset.limit || "20000") || 0;
+      var monthlySold = parseFloat(container.dataset.monthlySold || "0") || 0;
+      var fixedQuantity = parseFloat(container.dataset.quantity || "0") || 0;
+      var sellInput = document.getElementById("transaction_sell_price");
+      var valueSpan = document.getElementById("saldoPosVendaValor");
+      var alertSpan = document.getElementById("saldoPosVendaAlerta");
+
+      if (!sellInput || !valueSpan || !alertSpan) return;
+
+      function formatCurrencyBRL(value) {
+        return (value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      }
+
+      function updateSaldo() {
+        var sellPrice = parseFloat(String(sellInput.value).replace(",", ".")) || 0;
+        var saleTotal = sellPrice * fixedQuantity;
+        var saldoAposVenda = limit - (monthlySold + saleTotal);
+
+        valueSpan.textContent = formatCurrencyBRL(saldoAposVenda);
+
+        if (saldoAposVenda < 0) {
+          valueSpan.style.color = "red";
+          alertSpan.style.display = "inline";
+        } else {
+          valueSpan.style.color = "inherit";
+          alertSpan.style.display = "none";
+        }
+      }
+
+      sellInput.addEventListener("input", updateSaldo);
+
+      updateSaldo();
+    }
+
+    document.addEventListener("DOMContentLoaded", initSaldoPosVenda);
+    document.addEventListener("turbo:load", initSaldoPosVenda);
+  })();
+</script>

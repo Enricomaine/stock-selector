@@ -5,6 +5,10 @@ class TransactionsController < ApplicationController
   def index
     @open_transactions = Transaction.where(status: 1)
     @closed_transactions = Transaction.where(status: 2).order(selled_at: :desc).page(params[:page]).per(10)
+
+    current_month_range = Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
+    @monthly_sold_total = Transaction.where(status: 2, selled_at: current_month_range)
+                                     .sum("sell_price * quantity")
   end
 
   def send_email
@@ -37,6 +41,11 @@ class TransactionsController < ApplicationController
 
   # GET /transactions/1/edit
   def edit
+    current_month_range = Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
+    @monthly_sold_total = Transaction.where(status: 2, selled_at: current_month_range)
+                                     .where.not(id: @transaction.id)
+                                     .sum("sell_price * quantity")
+    @target_value = 20_000.0
   end
 
   # POST /transactions or /transactions.json
