@@ -28,9 +28,7 @@
           <td><%= transaction.quantity %></td>
           <td><%= l(transaction.buyed_at, format: :short) if transaction.buyed_at %></td>
           <td>
-            <%= link_to "Show", transaction %> |
-            <%= link_to "Edit", edit_transaction_path(transaction) %> |
-            <%= link_to "Destroy", transaction, method: :delete, data: { confirm: "Are you sure?" } %>
+            <%= link_to "Show", transaction %>
           </td>
         </tr>
       <% end %>
@@ -64,8 +62,7 @@
           <td><%= transaction.sell_price %></td>
           <td><%= l(transaction.selled_at, format: :short) if transaction.selled_at %></td>
           <td>
-            <%= link_to "Show", transaction %> |
-            <%= link_to "Destroy", transaction, method: :delete, data: { confirm: "Are you sure?" } %>
+            <%= link_to "Show", transaction %>
           </td>
         </tr>
       <% end %>

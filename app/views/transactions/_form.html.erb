@@ -15,22 +15,22 @@
   <% if transaction.persisted? %>
     <div>
       <%= form.label :sell_price, style: "display: block" %>
-      <%= form.text_field :sell_price %>
+      <%= form.number_field :sell_price, step: :any, required: true %>
     </div>
   <% else %>
     <div>
       <%= form.label :ticker, style: "display: block" %>
-      <%= form.text_field :ticker %>
+      <%= form.text_field :ticker, required: true %>
     </div>
 
     <div>
       <%= form.label :buy_price, style: "display: block" %>
-      <%= form.text_field :buy_price %>
+      <%= form.number_field :buy_price, step: :any, required: true %>
     </div>
 
     <div>
       <%= form.label :quantity, style: "display: block" %>
-      <%= form.text_field :quantity %>
+      <%= form.number_field :quantity, step: 1, required: true %>
     </div>
   <% end %>
 
