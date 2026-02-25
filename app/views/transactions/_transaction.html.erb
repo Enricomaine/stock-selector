@@ -26,12 +26,12 @@
 
   <p>
     <strong>Buyed at:</strong>
-    <%= transaction.buyed_at %>
+    <%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %>
   </p>
 
   <p>
     <strong>Selled at:</strong>
-    <%= transaction.selled_at %>
+    <%= transaction.selled_at&.strftime("%d/%m/%Y %H:%M") %>
   </p>
 
 </div>

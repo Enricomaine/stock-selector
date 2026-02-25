@@ -34,7 +34,7 @@
           <td><%= transaction.ticker %></td>
           <td><%= transaction.buy_price %></td>
           <td><%= transaction.quantity %></td>
-          <td><%= l(transaction.buyed_at, format: :short) if transaction.buyed_at %></td>
+          <td><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></td>
           <td>
             <%= link_to "Show", transaction %>
           </td>
@@ -66,9 +66,9 @@
           <td><%= transaction.ticker %></td>
           <td><%= transaction.buy_price %></td>
           <td><%= transaction.quantity %></td>
-          <td><%= l(transaction.buyed_at, format: :short) if transaction.buyed_at %></td>
+          <td><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></td>
           <td><%= transaction.sell_price %></td>
-          <td><%= l(transaction.selled_at, format: :short) if transaction.selled_at %></td>
+          <td><%= transaction.selled_at&.strftime("%d/%m/%Y %H:%M") %></td>
           <td>
             <%= link_to "Show", transaction %>
           </td>
