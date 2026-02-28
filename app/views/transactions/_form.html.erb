@@ -1,9 +1,8 @@
 <%= form_with(model: transaction) do |form| %>
   <% if transaction.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
-
-      <ul>
+    <div class="flash flash-alert mb-md">
+      <h2 class="text-sm mb-sm"><%= pluralize(transaction.errors.count, "erro") %> impediram o salvamento:</h2>
+      <ul class="text-sm">
         <% transaction.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -11,41 +10,40 @@
     </div>
   <% end %>
 
-
   <% if transaction.persisted? %>
-    <div>
-      <%= form.label :sell_price, style: "display: block" %>
-      <%= form.number_field :sell_price, step: :any, required: true %>
+    <div class="mb-md form-field">
+      <label class="form-label" for="transaction_sell_price">Preço de venda</label>
+      <%= form.number_field :sell_price, step: :any, required: true, class: "input-control", id: "transaction_sell_price" %>
     </div>
 
     <div id="saldo-pos-venda"
          data-limit="<%= @target_value || 20_000.0 %>"
          data-monthly-sold="<%= (@monthly_sold_total || 0).to_f %>"
          data-quantity="<%= transaction.quantity.to_f %>"
-         style="margin-top: 10px;">
+         class="text-sm text-muted mt-sm">
       Saldo após venda:
-      <span id="saldoPosVendaValor"></span>
-      <span id="saldoPosVendaAlerta" style="display:none; color:red; font-weight:bold;">⚠</span>
+      <span id="saldoPosVendaValor" class="pill pill-weak" style="margin-left:4px;"></span>
+      <span id="saldoPosVendaAlerta" style="display:none; color:#fca5a5; font-weight:bold; margin-left:4px;">⚠</span>
     </div>
   <% else %>
-    <div>
-      <%= form.label :ticker, style: "display: block" %>
-      <%= form.text_field :ticker, required: true %>
+    <div class="mb-md form-field">
+      <label class="form-label" for="transaction_ticker">Ticker</label>
+      <%= form.text_field :ticker, required: true, class: "input-control", id: "transaction_ticker" %>
     </div>
 
-    <div>
-      <%= form.label :buy_price, style: "display: block" %>
-      <%= form.number_field :buy_price, step: :any, required: true %>
+    <div class="mb-md form-field">
+      <label class="form-label" for="transaction_buy_price">Preço de compra</label>
+      <%= form.number_field :buy_price, step: :any, required: true, class: "input-control", id: "transaction_buy_price" %>
     </div>
 
-    <div>
-      <%= form.label :quantity, style: "display: block" %>
-      <%= form.number_field :quantity, step: 1, required: true %>
+    <div class="mb-md form-field">
+      <label class="form-label" for="transaction_quantity">Quantidade</label>
+      <%= form.number_field :quantity, step: 1, required: true, class: "input-control", id: "transaction_quantity" %>
     </div>
   <% end %>
 
-  <div>
-    <%= form.submit %>
+  <div class="mt-md">
+    <%= form.submit "Salvar", class: "btn btn-primary" %>
   </div>
 <% end %>
 
@@ -76,7 +74,7 @@
         valueSpan.textContent = formatCurrencyBRL(saldoAposVenda);
 
         if (saldoAposVenda < 0) {
-          valueSpan.style.color = "red";
+          valueSpan.style.color = "#fca5a5";
           alertSpan.style.display = "inline";
         } else {
           valueSpan.style.color = "inherit";

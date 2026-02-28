@@ -1,37 +1,41 @@
 <div id="<%= dom_id transaction %>">
-  <p>
-    <strong>Ticker:</strong>
-    <%= transaction.ticker %>
-  </p>
+  <div class="stats-bar">
+    <div class="stats-item">
+      <span class="stats-label">Ticker</span>
+      <span class="stats-value pill pill-weak"><%= transaction.ticker %></span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">Preço de compra</span>
+      <span class="stats-value"><%= transaction.buy_price %></span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">Quantidade</span>
+      <span class="stats-value"><%= transaction.quantity %></span>
+    </div>
+  </div>
 
-  <p>
-    <strong>Buy price:</strong>
-    <%= transaction.buy_price %>
-  </p>
+  <div class="stats-bar mt-sm">
+    <div class="stats-item">
+      <span class="stats-label">Preço de venda</span>
+      <span class="stats-value"><%= transaction.sell_price %></span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">Status</span>
+      <span class="stats-value pill <%= transaction.status == 1 ? "pill-weak" : "pill-strong" %>">
+        <%= transaction.status == 1 ? "Aberta" : "Concluída" %>
+      </span>
+    </div>
+  </div>
 
-  <p>
-    <strong>Quantity:</strong>
-    <%= transaction.quantity %>
-  </p>
-
-  <p>
-    <strong>Sell price:</strong>
-    <%= transaction.sell_price %>
-  </p>
-
-  <p>
-    <strong>Status:</strong>
-    <%= transaction.status %>
-  </p>
-
-  <p>
-    <strong>Buyed at:</strong>
-    <%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %>
-  </p>
-
-  <p>
-    <strong>Selled at:</strong>
-    <%= transaction.selled_at&.strftime("%d/%m/%Y %H:%M") %>
-  </p>
+  <div class="stats-bar mt-sm">
+    <div class="stats-item">
+      <span class="stats-label">Comprada em</span>
+      <span class="stats-value text-sm text-muted"><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">Vendida em</span>
+      <span class="stats-value text-sm text-muted"><%= transaction.selled_at&.strftime("%d/%m/%Y %H:%M") %></span>
+    </div>
+  </div>
 
 </div>

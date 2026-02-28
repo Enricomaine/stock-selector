@@ -1,6 +1,5 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # Desabilitado o filtro de navegador moderno para permitir acesso de navegadores mobile/mais antigos.
 
   def home
     render template: "layouts/home"

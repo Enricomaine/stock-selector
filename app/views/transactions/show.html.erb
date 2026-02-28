@@ -1,12 +1,28 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Transação" %>
 
-<%= render @transaction %>
+<div class="page-header">
+  <div>
+    <div class="page-title">Detalhes da transação</div>
+    <div class="page-subtitle"><%= @transaction.ticker %></div>
+  </div>
+  <div>
+    <%= link_to "Voltar", transactions_path, class: "btn btn-secondary" %>
+  </div>
+</div>
 
-<div>
-  <%= link_to "Edit this transaction", edit_transaction_path(@transaction) %> |
-  <%= link_to "Back to transactions", transactions_path %>
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Informações</div>
+  </div>
 
-  <%= button_to "Destroy this transaction", @transaction,
-                method: :delete,
-                data: { turbo_confirm: "Tem certeza que deseja excluir esta transação?" } %>
+  <%= render @transaction %>
+
+  <div class="mt-md">
+    <%= link_to "Editar", edit_transaction_path(@transaction), class: "btn btn-primary" %>
+    <%= button_to "Excluir", @transaction,
+                  method: :delete,
+                  data: { turbo_confirm: "Tem certeza que deseja excluir esta transação?" },
+                  class: "btn btn-secondary",
+                  form: { style: "display:inline" } %>
+  </div>
 </div>

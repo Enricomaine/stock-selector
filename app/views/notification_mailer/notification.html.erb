@@ -1,93 +1,109 @@
-<h1>Ações</h1>
+<h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;">Ranking de ações</h1>
 <% if @stocks.present? %>
-  <table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Ticker</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @stocks.each do |s| %>
-        <tr>
-          <td><%= s %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <% columns = 3 %>
+  <% total = @stocks.size %>
+  <% rows = (total.to_f / columns).ceil %>
+  <div style="width:100%; overflow-x:auto;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; margin-bottom:20px; min-width:360px;">
+      <tbody>
+        <% rows.times do |row_index| %>
+          <tr>
+            <% columns.times do |col_index| %>
+              <% idx = row_index + col_index * rows %>
+              <% if idx < total %>
+                <% position = idx + 1 %>
+                <% s = @stocks[idx] %>
+                <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">
+                  <span style="display:inline-block; font-weight:600; color:#bfdbfe; margin-right:6px;"><%= position %>º</span>
+                  <span><%= s %></span>
+                </td>
+              <% else %>
+                <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">&nbsp;</td>
+              <% end %>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% else %>
-  <p>Nenhuma ação encontrada.</p>
+  <p style="margin:0 0 20px 0; font-size:13px; color:#9ca3af;">Nenhuma ação encontrada.</p>
 <% end %>
 
-<h1>Transações para realizar</h1>
+<h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;">Transações para realizar</h1>
 <% if @transactions.present? %>
-  <table border="1" cellpadding="5" cellspacing="0">
+  <div style="width:100%; overflow-x:auto;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; margin-bottom:20px; min-width:600px;">
     <thead>
       <tr>
-        <th>Ticker</th>
-        <th>Buy price</th>
-        <th>Quantity</th>
-        <th>Buyed at</th>
-        <th>Current price</th>
-        <th>Lucro (%)</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Ticker</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Buy price</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Quantity</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Buyed at</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Current price</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Lucro (%)</th>
       </tr>
     </thead>
     <tbody>
       <% @transactions.each do |t| %>
-        <tr>
-          <% buy_price = t["buy_price"].to_f %>
-          <% current_price = t["current_price"].to_f %>
-          <% profit_pct = buy_price.positive? ? ((current_price - buy_price) / buy_price * 100.0) : 0 %>
+        <% buy_price = t["buy_price"].to_f %>
+        <% current_price = t["current_price"].to_f %>
+        <% profit_pct = buy_price.positive? ? ((current_price - buy_price) / buy_price * 100.0) : 0 %>
 
-          <td><%= t["ticker"] %></td>
-          <td><%= buy_price %></td>
-          <td><%= t["quantity"] %></td>
-          <td>
+        <tr>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= t["ticker"] %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= buy_price %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= t["quantity"] %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;">
             <% buyed_at = t["buyed_at"] %>
             <%= buyed_at.respond_to?(:strftime) ? buyed_at.strftime("%d/%m/%Y %H:%M") : buyed_at %>
           </td>
-          <td><%= current_price %></td>
-          <td><%= sprintf("%.2f%%", profit_pct) %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= current_price %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#bbf7d0;"><%= sprintf("%.2f%%", profit_pct) %></td>
         </tr>
       <% end %>
     </tbody>
-  </table>
+    </table>
+  </div>
 <% else %>
-  <p>Nenhuma transação encontrada.</p>
+  <p style="margin:0 0 20px 0; font-size:13px; color:#9ca3af;">Nenhuma transação encontrada.</p>
 <% end %>
 
-<h1>Transações em aberto</h1>
+<h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;">Transações em aberto</h1>
 <% if @open_transactions.present? %>
-  <table border="1" cellpadding="5" cellspacing="0">
+  <div style="width:100%; overflow-x:auto;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; margin-bottom:4px; min-width:600px;">
     <thead>
       <tr>
-        <th>Ticker</th>
-        <th>Buy price</th>
-        <th>Quantity</th>
-        <th>Buyed at</th>
-        <th>Current price</th>
-        <th>Lucro (%)</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Ticker</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Buy price</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Quantity</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Buyed at</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Current price</th>
+        <th align="left" style="padding:8px 10px; background-color:#111827; color:#cbd5f5; font-size:13px; border-bottom:1px solid #1f2937;">Lucro (%)</th>
       </tr>
     </thead>
     <tbody>
       <% @open_transactions.each do |t| %>
-        <tr>
-          <% buy_price = t["buy_price"].to_f %>
-          <% current_price = t["current_price"].to_f %>
-          <% profit_pct = buy_price.positive? ? ((current_price - buy_price) / buy_price * 100.0) : 0 %>
+        <% buy_price = t["buy_price"].to_f %>
+        <% current_price = t["current_price"].to_f %>
+        <% profit_pct = buy_price.positive? ? ((current_price - buy_price) / buy_price * 100.0) : 0 %>
 
-          <td><%= t["ticker"] %></td>
-          <td><%= buy_price %></td>
-          <td><%= t["quantity"] %></td>
-          <td>
+        <tr>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= t["ticker"] %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= buy_price %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= t["quantity"] %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;">
             <% buyed_at = t["buyed_at"] %>
             <%= buyed_at.respond_to?(:strftime) ? buyed_at.strftime("%d/%m/%Y %H:%M") : buyed_at %>
           </td>
-          <td><%= current_price %></td>
-          <td><%= sprintf("%.2f%%", profit_pct) %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb;"><%= current_price %></td>
+          <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#bbf7d0;"><%= sprintf("%.2f%%", profit_pct) %></td>
         </tr>
       <% end %>
     </tbody>
-  </table>
+    </table>
+  </div>
 <% else %>
-  <p>Nenhuma transação encontrada.</p>
+  <p style="margin:0; font-size:13px; color:#9ca3af;">Nenhuma transação encontrada.</p>
 <% end %>

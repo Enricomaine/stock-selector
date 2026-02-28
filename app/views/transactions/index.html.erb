@@ -1,88 +1,132 @@
-<p style="color: green"><%= notice %></p>
-
-<% content_for :title, "Transactions" %>
-
-
-<div style="margin-bottom: 20px;">
-  <%= button_to "Realizar consulta", preview_email_transactions_path, method: :get %>
-  <!-- caso prefira manter confirmação, pode usar data: { confirm: "Deseja visualizar o email agora?" } -->
-</div>
+<% content_for :title, "Transações" %>
 
 <% target_value = 20_000.0 %>
 <% remaining_value = target_value - (@monthly_sold_total || 0) %>
-<p>
-  Limite mensal: <%= number_to_currency(target_value) %> |
-  Total vendido no mês: <%= number_to_currency(@monthly_sold_total || 0) %> |
-  Restante: <%= number_to_currency(remaining_value) %>
-</p>
 
-<h1>Transações em aberto</h1>
-<% if @open_transactions.any? %>
-  <table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Ticker</th>
-        <th>Buy Price</th>
-        <th>Quantity</th>
-        <th>Buyed At</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @open_transactions.each do |transaction| %>
-        <tr>
-          <td><%= transaction.ticker %></td>
-          <td><%= transaction.buy_price %></td>
-          <td><%= transaction.quantity %></td>
-          <td><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></td>
-          <td>
-            <%= link_to "Show", transaction %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>Nenhuma transação em aberto.</p>
-<% end %>
-
-<h1>Transações concluídas</h1>
-<% if @closed_transactions.any? %>
-  <table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Ticker</th>
-        <th>Buy Price</th>
-        <th>Quantity</th>
-        <th>Buyed At</th>
-        <th>Sell Price</th>
-        <th>Selled At</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @closed_transactions.each do |transaction| %>
-        <tr>
-          <td><%= transaction.ticker %></td>
-          <td><%= transaction.buy_price %></td>
-          <td><%= transaction.quantity %></td>
-          <td><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></td>
-          <td><%= transaction.sell_price %></td>
-          <td><%= transaction.selled_at&.strftime("%d/%m/%Y %H:%M") %></td>
-          <td>
-            <%= link_to "Show", transaction %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <div style="margin-top: 20px;">
-    <%= paginate @closed_transactions %>
+<div class="page-header">
+  <div>
+    <div class="page-title">Transações</div>
+    <div class="page-subtitle">Acompanhe suas posições abertas e concluídas</div>
   </div>
-<% else %>
-  <p>Nenhuma transação concluída.</p>
-<% end %>
+  <div>
+    <%= button_to "Realizar consulta", preview_email_transactions_path, method: :get, class: "btn btn-primary" %>
+  </div>
+</div>
 
-<div style="margin-top: 30px;">
-  <%= link_to "Nova transação", new_transaction_path %>
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Resumo do mês</div>
+  </div>
+  <div class="stats-bar">
+    <div class="stats-item">
+      <span class="stats-label">Limite mensal</span>
+      <span class="stats-value pill pill-weak"><%= number_to_currency(target_value) %></span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">Total vendido no mês</span>
+      <span class="stats-value pill pill-strong"><%= number_to_currency(@monthly_sold_total || 0) %></span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">Restante</span>
+      <span class="stats-value pill <%= remaining_value.positive? ? "pill-weak" : "pill-strong" %>"><%= number_to_currency(remaining_value) %></span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Transações em aberto</div>
+      <div class="card-meta"><%= @open_transactions.size %> posição(ões)</div>
+    </div>
+    <div>
+      <%= link_to "Nova transação", new_transaction_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+
+  <% if @open_transactions.any? %>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Ticker</th>
+            <th>Buy Price</th>
+            <th>Quantity</th>
+            <th>Buyed At</th>
+            <th class="text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @open_transactions.each do |transaction| %>
+            <tr>
+              <td>
+                <span class="table-tag table-tag-open">Aberta</span>
+              </td>
+              <td><%= transaction.ticker %></td>
+              <td><%= transaction.buy_price %></td>
+              <td><%= transaction.quantity %></td>
+              <td><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></td>
+              <td class="text-right">
+                <%= link_to "Detalhes", transaction, class: "btn btn-ghost text-xs" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="text-muted text-sm">Nenhuma transação em aberto.</p>
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Transações concluídas</div>
+      <div class="card-meta"><%= @closed_transactions.total_count if @closed_transactions.respond_to?(:total_count) %></div>
+    </div>
+  </div>
+
+  <% if @closed_transactions.any? %>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Ticker</th>
+            <th>Buy Price</th>
+            <th>Quantity</th>
+            <th>Buyed At</th>
+            <th>Sell Price</th>
+            <th>Selled At</th>
+            <th class="text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @closed_transactions.each do |transaction| %>
+            <tr>
+              <td>
+                <span class="table-tag table-tag-closed">Concluída</span>
+              </td>
+              <td><%= transaction.ticker %></td>
+              <td><%= transaction.buy_price %></td>
+              <td><%= transaction.quantity %></td>
+              <td><%= transaction.buyed_at&.strftime("%d/%m/%Y %H:%M") %></td>
+              <td><%= transaction.sell_price %></td>
+              <td><%= transaction.selled_at&.strftime("%d/%m/%Y %H:%M") %></td>
+              <td class="text-right">
+                <%= link_to "Detalhes", transaction, class: "btn btn-ghost text-xs" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-md">
+      <%= paginate @closed_transactions %>
+    </div>
+  <% else %>
+    <p class="text-muted text-sm">Nenhuma transação concluída.</p>
+  <% end %>
 </div>

@@ -27,7 +27,7 @@ class TransactionsController < ApplicationController
     @transactions = data.transactions_not_found
     @open_transactions = data.open_transactions
 
-    render template: "notification_mailer/notification", layout: "mailer"
+    render template: "notification_mailer/notification", layout: "mailer_preview"
   end
 
   # GET /transactions/1 or /transactions/1.json

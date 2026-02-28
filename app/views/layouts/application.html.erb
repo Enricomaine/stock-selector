@@ -22,7 +22,30 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="app-shell">
+    <header class="app-header">
+      <div class="app-container">
+        <h1 class="app-header-title"><%= content_for(:title) || "Stock Selector" %></h1>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div class="app-container">
+        <% if notice.present? %>
+          <div class="flash flash-notice"><%= notice %></div>
+        <% end %>
+        <% if alert.present? %>
+          <div class="flash flash-alert"><%= alert %></div>
+        <% end %>
+
+        <%= yield %>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <div class="app-container">
+        <span class="text-xs text-muted">Stock Selector · <%= Time.current.year %></span>
+      </div>
+    </footer>
   </body>
 </html>

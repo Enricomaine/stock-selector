@@ -1,12 +1,23 @@
-<% content_for :title, "Editing transaction" %>
+<% content_for :title, "Editar transação" %>
 
-<h1>Editing transaction</h1>
+<div class="page-header">
+  <div>
+    <div class="page-title">Editar transação</div>
+    <div class="page-subtitle"><%= @transaction.ticker %></div>
+  </div>
+  <div>
+    <%= link_to "Voltar", transactions_path, class: "btn btn-secondary" %>
+  </div>
+</div>
 
-<%= render "form", transaction: @transaction %>
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Atualizar venda</div>
+  </div>
 
-<br>
+  <%= render "form", transaction: @transaction %>
 
-<div>
-  <%= link_to "Show this transaction", @transaction %> |
-  <%= link_to "Back to transactions", transactions_path %>
+  <div class="mt-md">
+    <%= link_to "Ver detalhes", @transaction, class: "btn btn-ghost text-sm" %>
+  </div>
 </div>
