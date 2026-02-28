@@ -42,6 +42,9 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+# Ensure Rails binstubs are executable inside the image
+RUN chmod +x bin/rails bin/docker-entrypoint bin/thrust
+
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
