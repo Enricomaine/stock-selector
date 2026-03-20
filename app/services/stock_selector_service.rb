@@ -1,56 +1,114 @@
 class StockSelectorService
+  MIN_LIQUIDITY    = 500_000
+  TOP_STOCKS_LIMIT = 30
+
+  Result = Struct.new(
+    :stock_tickers,
+    :transactions_not_found,
+    :open_transactions,
+    keyword_init: true
+  )
+
   def call
-    data = notification_data
-
-    begin
-      Rails.logger.info("[StockSelectorService] Enviando e-mail de notificação. Tickers selecionados: #{data.stock_tickers.size}, transações para realizar: #{data.transactions_not_found.size}, abertas: #{data.open_transactions.size}")
-      NotificationMailer.notification(data.stock_tickers, data.transactions_not_found, data.open_transactions).deliver_now
-      Rails.logger.info("[StockSelectorService] E-mail de notificação enviado com sucesso")
-    rescue StandardError => e
-      Rails.logger.error("[StockSelectorService] Falha ao enviar e-mail de notificação: #{e.class} - #{e.message}")
-    end
-
-    data.transactions_not_found
+    build_result
   end
 
-  NotificationData = Struct.new(:stock_tickers, :transactions_not_found, :open_transactions, keyword_init: true)
+  private
 
-  def notification_data
-    Rails.logger.info("[StockSelectorService] Iniciando seleção de ações")
+  def build_result
+    Rails.logger.info(log_prefix + "Iniciando seleção de ações")
 
-    stocks = ApiConsultant.new.call
-    unless stocks
-      Rails.logger.error("[StockSelectorService] Nenhum dado retornado da API. E-mail NÃO será enviado.")
-      return NotificationData.new(stock_tickers: [], transactions_not_found: [], open_transactions: [])
-    end
+    stocks = fetch_stocks
+    return empty_result if stocks.blank?
 
-    first_30 = stocks.select do |stock|
-      stock[:p_l] && stock[:liquidezmediadiaria] && stock[:ev_ebit] &&
-      stock[:p_l] > 0 && stock[:liquidezmediadiaria] > 500000 && stock[:ev_ebit] > 0
-    end
+    filtered_stocks = filter_stocks(stocks)
+    top_stocks      = select_top_stocks(filtered_stocks)
 
-    first_30 = first_30.sort_by { |stock| stock[:ev_ebit] }.first(30)
+    open_transactions = fetch_open_transactions
+    tickers_set       = extract_tickers(top_stocks)
 
-    open_transactions = Transaction.where(status: 1)
+    transactions_not_found = find_missing_transactions(open_transactions, tickers_set)
+    prices_by_ticker       = map_prices(stocks)
 
-    stock_tickers = first_30.map { |s| s[:ticker] }
-
-    transactions_not_found = open_transactions.reject { |t| stock_tickers.include?(t.ticker) }
-
-    prices_by_ticker = stocks.to_h { |s| [s[:ticker], s[:price]] }
-
-    enriched_transactions_not_found = transactions_not_found.map do |t|
-      t.attributes.merge("current_price" => prices_by_ticker[t.ticker])
-    end
-
-    enriched_open_transactions = open_transactions.map do |t|
-      t.attributes.merge("current_price" => prices_by_ticker[t.ticker])
-    end
-
-    NotificationData.new(
-      stock_tickers: stock_tickers,
-      transactions_not_found: enriched_transactions_not_found,
-      open_transactions: enriched_open_transactions
+    result = Result.new(
+      stock_tickers: tickers_set.to_a,
+      transactions_not_found: enrich_transactions(transactions_not_found, prices_by_ticker),
+      open_transactions: enrich_transactions(open_transactions, prices_by_ticker)
     )
+
+    Ranking.new.save_ranking(top_stocks)
+
+    Rails.logger.info(summary_log(result))
+
+    result
+  end
+
+  def fetch_stocks
+    ApiConsultant.new.call
+  rescue StandardError => e
+    Rails.logger.error(log_prefix + "Erro ao consultar API: #{e.class} - #{e.message}")
+    nil
+  end
+
+  def fetch_open_transactions
+    Transaction.open
+  end
+
+  def filter_stocks(stocks)
+    stocks.select do |s|
+      s[:p_l].to_f > 0 &&
+        s[:liquidezmediadiaria].to_f > MIN_LIQUIDITY &&
+        s[:ev_ebit].to_f > 0
+    end
+  end
+
+  def select_top_stocks(stocks)
+    stocks.min_by(TOP_STOCKS_LIMIT) { |s| s[:ev_ebit] }
+  end
+
+  def extract_tickers(stocks)
+    stocks.map { |s| s[:ticker] }.to_set
+  end
+
+  def map_prices(stocks)
+    stocks.to_h { |s| [s[:ticker], s[:price]] }
+  end
+
+  def find_missing_transactions(open_transactions, tickers_set)
+    open_transactions.reject do |t|
+      tickers_set.include?(t.ticker)
+    end
+  end
+
+  def enrich_transactions(transactions, prices_by_ticker)
+    transactions.map do |t|
+      {
+        id: t.id,
+        ticker: t.ticker,
+        current_price: prices_by_ticker[t.ticker]
+      }
+    end
+  end
+
+  def empty_result
+    Rails.logger.warn(log_prefix + "Nenhum dado retornado da API")
+
+    Result.new(
+      stock_tickers: [],
+      transactions_not_found: [],
+      open_transactions: []
+    )
+  end
+
+  def log_prefix
+    "[StockSelectorService] "
+  end
+
+  def summary_log(result)
+    log_prefix +
+      "Processamento concluído. " \
+      "Tickers: #{result.stock_tickers.size}, " \
+      "Não encontradas: #{result.transactions_not_found.size}, " \
+      "Abertas: #{result.open_transactions.size}"
   end
 end

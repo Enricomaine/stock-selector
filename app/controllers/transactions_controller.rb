@@ -1,38 +1,46 @@
 class TransactionsController < ApplicationController
-  before_action :set_transaction, only: %i[ show edit update destroy ]
+  before_action :set_transaction, only: %i[show edit update destroy]
 
-  # GET /transactions or /transactions.json
+  # GET /transactions
   def index
-    @open_transactions = Transaction.where(status: 1)
-    @closed_transactions = Transaction.where(status: 2).order(selled_at: :desc).page(params[:page]).per(10)
+    @open_transactions   = Transaction.open
+    @closed_transactions = Transaction.closed.order(selled_at: :desc).page(params[:page]).per(10)
 
     current_month_range = Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-    @monthly_sold_total = Transaction.where(status: 2, selled_at: current_month_range)
+
+    @monthly_sold_total = Transaction.closed
+                                     .where(selled_at: current_month_range)
                                      .sum("sell_price * quantity")
   end
 
-  def send_email
-    StockSelectorJob.perform_now
-    redirect_to transactions_path, notice: "Emails enviados com sucesso."
-  end
+  def stock_analysis
+    result = StockSelectorService.new.call
 
-  def preview_email
-    data = StockSelectorService.new.notification_data
-
-    if data.stock_tickers.empty? && data.transactions_not_found.empty? && data.open_transactions.empty?
-      redirect_to transactions_path, alert: "Não foi possível gerar o conteúdo do e-mail." and return
+    if empty_result?(result)
+      redirect_to transactions_path, alert: "Não foi possível obter os dados." and return
     end
 
-    @stocks = data.stock_tickers
-    @transactions = data.transactions_not_found
-    @open_transactions = data.open_transactions
-
-    render template: "notification_mailer/notification", layout: "mailer_preview"
+    @stocks            = result.stock_tickers
+    @transactions      = result.transactions_not_found
+    @open_transactions = result.open_transactions
   end
 
-  # GET /transactions/1 or /transactions/1.json
-  def show
+  def preview
+    result = StockSelectorService.new.call
+
+    if empty_result?(result)
+      redirect_to transactions_path, alert: "Não foi possível gerar os dados." and return
+    end
+
+    @stocks            = result.stock_tickers
+    @transactions      = result.transactions_not_found
+    @open_transactions = result.open_transactions
+
+    render :stock_analysis
   end
+
+  # GET /transactions/1
+  def show; end
 
   # GET /transactions/new
   def new
@@ -42,21 +50,24 @@ class TransactionsController < ApplicationController
   # GET /transactions/1/edit
   def edit
     current_month_range = Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-    @monthly_sold_total = Transaction.where(status: 2, selled_at: current_month_range)
+
+    @monthly_sold_total = Transaction.closed
+                                     .where(selled_at: current_month_range)
                                      .where.not(id: @transaction.id)
                                      .sum("sell_price * quantity")
+
     @target_value = 20_000.0
   end
 
-  # POST /transactions or /transactions.json
+  # POST /transactions
   def create
     @transaction = Transaction.new(transaction_params)
-    @transaction.status = 1
+    @transaction.status   = 1
     @transaction.buyed_at = Time.zone.now
 
     respond_to do |format|
       if @transaction.save
-        format.html { redirect_to @transaction, notice: "Transaction was successfully created." }
+        format.html { redirect_to @transaction, notice: "Transaction criada com sucesso." }
         format.json { render :show, status: :created, location: @transaction }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -65,11 +76,11 @@ class TransactionsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /transactions/1 or /transactions/1.json
+  # PATCH/PUT /transactions/1
   def update
     respond_to do |format|
       if @transaction.update(transaction_params.merge(status: 2, selled_at: Time.zone.now))
-        format.html { redirect_to @transaction, notice: "Transaction was successfully updated.", status: :see_other }
+        format.html { redirect_to @transaction, notice: "Transaction atualizada com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @transaction }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -78,28 +89,33 @@ class TransactionsController < ApplicationController
     end
   end
 
-  # DELETE /transactions/1 or /transactions/1.json
+  # DELETE /transactions/1
   def destroy
     @transaction.destroy!
 
     respond_to do |format|
-      format.html { redirect_to transactions_path, notice: "Transaction was successfully destroyed.", status: :see_other }
+      format.html { redirect_to transactions_path, notice: "Transaction removida com sucesso.", status: :see_other }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_transaction
-      @transaction = Transaction.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def transaction_params
-      if action_name == 'update'
-        params.require(:transaction).permit(:sell_price)
-      else
-        params.require(:transaction).permit(:ticker, :buy_price, :quantity)
-      end
+  def set_transaction
+    @transaction = Transaction.find(params.expect(:id))
+  end
+
+  def transaction_params
+    if action_name == 'update'
+      params.require(:transaction).permit(:sell_price)
+    else
+      params.require(:transaction).permit(:ticker, :buy_price, :quantity)
     end
+  end
+
+  def empty_result?(result)
+    result.stock_tickers.empty? &&
+      result.transactions_not_found.empty? &&
+      result.open_transactions.empty?
+  end
 end

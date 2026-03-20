@@ -10,9 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_14_153335) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_20_202144) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "rankings", force: :cascade do |t|
+    t.string "ticker"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "position"
+  end
 
   create_table "transactions", force: :cascade do |t|
     t.string "ticker"
