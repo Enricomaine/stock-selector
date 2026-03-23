@@ -4,7 +4,7 @@
 
 <h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;">Ranking de ações</h1>
 <% if @stocks.present? %>
-  <% columns = 3 %>
+  <% columns = 2 %>
   <% total = @stocks.size %>
   <% rows = (total.to_f / columns).ceil %>
   <div style="width:100%; overflow-x:auto;">
@@ -15,11 +15,20 @@
             <% columns.times do |col_index| %>
               <% idx = row_index + col_index * rows %>
               <% if idx < total %>
-                <% position = idx + 1 %>
                 <% s = @stocks[idx] %>
+                <% ticker = s.respond_to?(:ticker) ? s.ticker : s %>
+                <% position = s.respond_to?(:position) ? s.position : (idx + 1) %>
+                <% dif = s.respond_to?(:dif) ? s.dif.to_i : 0 %>
                 <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">
-                  <span style="display:inline-block; font-weight:600; color:#bfdbfe; margin-right:6px;"><%= position %>º</span>
-                  <span><%= s %></span>
+                  <div style="display:flex; align-items:center; width:100%; gap:6px;">
+                    <span style="display:inline-block; font-weight:600; color:#bfdbfe;"><%= position %>º</span>
+                    <span><%= ticker %></span>
+                    <% if dif.positive? %>
+                      <span style="margin-left:auto; color:#22c55e; font-weight:600;">&#x2B06; +<%= dif %></span>
+                    <% elsif dif.negative? %>
+                      <span style="margin-left:auto; color:#ef4444; font-weight:600;">&#x2B07; <%= dif %></span>
+                    <% end %>
+                  </div>
                 </td>
               <% else %>
                 <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">&nbsp;</td>

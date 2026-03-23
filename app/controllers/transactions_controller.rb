@@ -20,23 +20,9 @@ class TransactionsController < ApplicationController
       redirect_to transactions_path, alert: "Não foi possível obter os dados." and return
     end
 
-    @stocks            = result.stock_tickers
+    @stocks            = Ranking.current_with_position_diff
     @transactions      = result.transactions_not_found
     @open_transactions = result.open_transactions
-  end
-
-  def preview
-    result = StockSelectorService.new.call
-
-    if empty_result?(result)
-      redirect_to transactions_path, alert: "Não foi possível gerar os dados." and return
-    end
-
-    @stocks            = result.stock_tickers
-    @transactions      = result.transactions_not_found
-    @open_transactions = result.open_transactions
-
-    render :stock_analysis
   end
 
   # GET /transactions/1
