@@ -83,9 +83,12 @@ class StockSelectorService
   def enrich_transactions(transactions, prices_by_ticker)
     transactions.map do |t|
       {
-        id: t.id,
-        ticker: t.ticker,
-        current_price: prices_by_ticker[t.ticker]
+        "id" => t.id,
+        "ticker" => t.ticker,
+        "buy_price" => t.buy_price,
+        "quantity" => t.quantity,
+        "buyed_at" => t.buyed_at,
+        "current_price" => prices_by_ticker[t.ticker]
       }
     end
   end
