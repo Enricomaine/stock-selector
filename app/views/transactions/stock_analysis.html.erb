@@ -2,45 +2,54 @@
   <%= link_to "Voltar", transactions_path, style: "display:inline-block; padding:8px 12px; border-radius:8px; background:#1f2937; color:#e5e7eb; text-decoration:none; font-size:13px; border:1px solid #374151;" %>
 </div>
 
-<h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;">Ranking de ações</h1>
-<% if @stocks.present? %>
-  <% columns = 2 %>
-  <% total = @stocks.size %>
-  <% rows = (total.to_f / columns).ceil %>
-  <div style="width:100%; overflow-x:auto;">
-    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; margin-bottom:20px; min-width:360px;">
-      <tbody>
-        <% rows.times do |row_index| %>
-          <tr>
-            <% columns.times do |col_index| %>
-              <% idx = row_index + col_index * rows %>
-              <% if idx < total %>
-                <% s = @stocks[idx] %>
-                <% ticker = s.respond_to?(:ticker) ? s.ticker : s %>
-                <% position = s.respond_to?(:position) ? s.position : (idx + 1) %>
-                <% dif = s.respond_to?(:dif) ? s.dif.to_i : 0 %>
-                <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">
-                  <div style="display:flex; align-items:center; width:100%; gap:6px;">
-                    <span style="display:inline-block; font-weight:600; color:#bfdbfe;"><%= position %>º</span>
-                    <span><%= ticker %></span>
-                    <% if dif.positive? %>
-                      <span style="margin-left:auto; color:#22c55e; font-weight:600;">&#x2B06; +<%= dif %></span>
-                    <% elsif dif.negative? %>
-                      <span style="margin-left:auto; color:#ef4444; font-weight:600;">&#x2B07; <%= dif %></span>
-                    <% end %>
-                  </div>
-                </td>
-              <% else %>
-                <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">&nbsp;</td>
+<% rankings_by_type = [
+  { title: "Ranking de ações - Tipo 1", stocks: @stocks_type_1 },
+  { title: "Ranking de ações - Tipo 12", stocks: @stocks_type_12 }
+] %>
+
+<% rankings_by_type.each do |group| %>
+  <h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;"><%= group[:title] %></h1>
+  <% stocks = group[:stocks] || [] %>
+
+  <% if stocks.present? %>
+    <% columns = 2 %>
+    <% total = stocks.size %>
+    <% rows = (total.to_f / columns).ceil %>
+    <div style="width:100%; overflow-x:auto;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; margin-bottom:20px; min-width:360px;">
+        <tbody>
+          <% rows.times do |row_index| %>
+            <tr>
+              <% columns.times do |col_index| %>
+                <% idx = row_index + col_index * rows %>
+                <% if idx < total %>
+                  <% s = stocks[idx] %>
+                  <% ticker = s.respond_to?(:ticker) ? s.ticker : s %>
+                  <% position = s.respond_to?(:position) ? s.position : (idx + 1) %>
+                  <% dif = s.respond_to?(:dif) ? s.dif.to_i : 0 %>
+                  <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">
+                    <div style="display:flex; align-items:center; width:100%; gap:6px;">
+                      <span style="display:inline-block; font-weight:600; color:#bfdbfe;"><%= position %>º</span>
+                      <span><%= ticker %></span>
+                      <% if dif.positive? %>
+                        <span style="margin-left:auto; color:#22c55e; font-weight:600;">&#x2B06; +<%= dif %></span>
+                      <% elsif dif.negative? %>
+                        <span style="margin-left:auto; color:#ef4444; font-weight:600;">&#x2B07; <%= dif %></span>
+                      <% end %>
+                    </div>
+                  </td>
+                <% else %>
+                  <td style="padding:8px 10px; font-size:13px; border-bottom:1px solid #1f2937; color:#e5e7eb; width:33%;">&nbsp;</td>
+                <% end %>
               <% end %>
-            <% end %>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-<% else %>
-  <p style="margin:0 0 20px 0; font-size:13px; color:#9ca3af;">Nenhuma ação encontrada.</p>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p style="margin:0 0 20px 0; font-size:13px; color:#9ca3af;">Nenhuma ação encontrada.</p>
+  <% end %>
 <% end %>
 
 <h1 style="margin:0 0 12px 0; font-size:20px; color:#e5e7eb;">Transações para realizar</h1>

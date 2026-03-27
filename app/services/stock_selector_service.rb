@@ -1,6 +1,7 @@
 class StockSelectorService
   MIN_LIQUIDITY    = 500_000
   TOP_STOCKS_LIMIT = 30
+  CATEGORY_TYPES   = [ 1, 12 ].freeze
 
   Result = Struct.new(
     :stock_tickers,
@@ -22,7 +23,11 @@ class StockSelectorService
     return empty_result if stocks.blank?
 
     filtered_stocks = filter_stocks(stocks)
-    top_stocks      = select_top_stocks(filtered_stocks)
+    top_stocks_by_category = CATEGORY_TYPES.to_h do |category_type|
+      stocks_for_category = filtered_stocks.select { |s| s[:category_type].to_i == category_type }
+      [ category_type, select_top_stocks(stocks_for_category) ]
+    end
+    top_stocks = top_stocks_by_category.values.flatten
 
     open_transactions = fetch_open_transactions
     tickers_set       = extract_tickers(top_stocks)
@@ -36,10 +41,12 @@ class StockSelectorService
       open_transactions: enrich_transactions(open_transactions, prices_by_ticker)
     )
 
-    Ranking.new.save_ranking(top_stocks)
+    ranking = Ranking.new
+    top_stocks_by_category.each do |category_type, stocks_for_category|
+      ranking.save_ranking(stocks_for_category, category_type)
+    end
 
     Rails.logger.info(summary_log(result))
-
     result
   end
 
@@ -56,9 +63,16 @@ class StockSelectorService
 
   def filter_stocks(stocks)
     stocks.select do |s|
-      s[:p_l].to_f > 0 &&
-        s[:liquidezmediadiaria].to_f > MIN_LIQUIDITY &&
-        s[:ev_ebit].to_f > 0
+      p_l = s[:p_l].to_f
+      ev_ebit = s[:ev_ebit].to_f
+
+      next false unless p_l > 0 && ev_ebit > 0
+
+      category_type = s[:category_type].to_i
+
+      next true if category_type == 12
+
+      s[:liquidezmediadiaria].to_f > MIN_LIQUIDITY
     end
   end
 
@@ -71,7 +85,7 @@ class StockSelectorService
   end
 
   def map_prices(stocks)
-    stocks.to_h { |s| [s[:ticker], s[:price]] }
+    stocks.to_h { |s| [ s[:ticker], s[:price] ] }
   end
 
   def find_missing_transactions(open_transactions, tickers_set)

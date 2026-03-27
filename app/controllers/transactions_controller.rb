@@ -20,7 +20,8 @@ class TransactionsController < ApplicationController
       redirect_to transactions_path, alert: "Não foi possível obter os dados." and return
     end
 
-    @stocks            = Ranking.current_with_position_diff
+    @stocks_type_1     = Ranking.current_with_position_diff(1)
+    @stocks_type_12    = Ranking.current_with_position_diff(12)
     @transactions      = result.transactions_not_found
     @open_transactions = result.open_transactions
   end
@@ -92,7 +93,7 @@ class TransactionsController < ApplicationController
   end
 
   def transaction_params
-    if action_name == 'update'
+    if action_name == "update"
       params.require(:transaction).permit(:sell_price)
     else
       params.require(:transaction).permit(:ticker, :buy_price, :quantity)
